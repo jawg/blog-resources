@@ -1,0 +1,22 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'io.jawg.docker-multi-stage-build'
+version = '1.0.0'
+
+description = """docker-multi-stage-build"""
+
+jar {
+  archiveName = 'docker-multi-stage-build.jar'
+  manifest {
+    attributes 'Implementation-Version': version,
+               'Main-Class': 'io.jawg.docker_multi_stage_build.App'
+  }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+  mavenCentral()
+}
