@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.0/mapbox-gl.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.0/mapbox-gl.css' rel='stylesheet' />
+  <script src="https://d3js.org/d3.v4.js"></script>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+    }
+    #map {
+        width: 100%;
+        height: 60%;
+    }
+    #elevation-chart {
+      min-width: 300px;
+      width: 50%;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="container">
+    <div id="map"></div>
+    <div id="elevation-chart"></div>
+  </section>
+
+  <script>
+    var accessToken = '<access-token>';
+
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'https://api.jawg.io/styles/jawg-terrain.json?access-token=' + accessToken,
+      center: [5.47944, 44.8555],
+      zoom: 12
+    });
+
+    map.on('load', () => {
+      map.addSource("track", {
+        type: "geojson",
+        data: "./grand-veymont.geojson"
+      });
+
+      map.addLayer({
+        "id": "track-case",
+        "type": "line",
+        "source": "track",
+        "layout": {
+          "line-join": "round",
+          "line-cap": "round"
+        },
+        "paint": {
+          "line-gap-width": 4,
+          "line-color": "#1FCCB8",
+          "line-width": 1
+        }
+      }, 'poi-label'); // Add the layer before the layer 'poi-label'
+
+      map.addLayer({
+        "id": "track",
+        "type": "line",
+        "source": "track",
+        "layout": {
+          "line-join": "round",
+          "line-cap": "round"
+        },
+        "paint": {
+          "line-color": "#BFF1ED",
+          "line-width": 4
+        }
+      }, 'poi-label'); // Add the layer before the layer 'poi-label'
+
+    });
+
+
+    function encode(locations) {
+      var lastLat = 0.0;
+      var lastLng = 0.0;
+
+      var result = "";
+
+      for (i in locations) {
+        var location = locations[i];
+        var lat = Math.round(location[1] * 1e5);
+        var lng = Math.round(location[0] * 1e5);
+
+        var dLat = lat - lastLat;
+        var dLng = lng - lastLng;
+
+        result += encodeCoordinate(dLat);
+        result += encodeCoordinate(dLng);
+
+        lastLat = lat;
+        lastLng = lng;
+      }
+
+      return result;
+    }
+
+    function encodeCoordinate(coord) {
+      var result = "";
+
+      coord = coord << 1;
+      if (coord < 0) {
+        coord = ~coord;
+      }
+      while (coord >= 0x20) {
+        result += String.fromCodePoint((0x20 | (coord & 0x1F)) + 63);
+        coord = coord >> 5;
+      }
+
+      result += String.fromCodePoint(coord + 63);
+
+      return result;
+    }
+
+    fetch('grand-veymont.geojson')
+      .then(response => response.json())
+      .then(track => {
+        var locations = track.coordinates;
+        var size = 500;
+        var chunks = [];
+        for (i = 0; i < locations.length; i += size) {
+          chunks.push(locations.slice(i, i + size));
+        }
+
+        var requests = chunks
+          .map(locations => encode(locations))
+          .map(polyline => {
+            var url = 'https://api.jawg.io/elevations/locations?access-token=' + accessToken;
+            return fetch(encodeURI(url), { // Encode the url
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  locations: polyline
+                })
+              })
+              .then(response => response.json())
+          });
+
+        return Promise.all(requests);
+      })
+      .then(elevations => drawElevationChart(elevations.flat()))
+      .catch(error => console.error('Error:', error.message));
+
+    function drawElevationChart(elevations) {
+      // set the dimensions and margins of the graph
+      var margin = {
+        top: 30,
+        right: 100,
+        bottom: 10,
+        left: 50
+      };
+
+      var viewBoxWidth = 600;
+      var viewBoxHeight = 200;
+
+      var width = viewBoxWidth - margin.left - margin.right;
+      var height = viewBoxHeight - margin.top - margin.bottom;
+
+      var svg = d3.select("#elevation-chart")
+        .append("svg")
+        .attr("viewBox", "0 0 " + viewBoxWidth + " " + viewBoxHeight)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      var data = elevations.map(e => e.elevation);
+
+      var min = d3.min(data);
+      var minIndex = data.indexOf(min);
+
+      var max = d3.max(data);
+      var maxIndex = data.indexOf(max);
+
+      // Add X axis -> the indices
+      var x = d3.scaleLinear()
+        .domain([0, data.length - 1])
+        .range([0, width]);
+
+      // Add Y axis -> the elevations
+      var y = d3.scaleLinear()
+        .domain([1000, max])
+        .range([height, 0]);
+
+      // Add the area
+      svg.append("path")
+        .datum(data)
+        .attr("fill", "#BFF1ED")
+        .attr("d", d3.area()
+          .x((d, i) => x(i))
+          .y0(y(1000))
+          .y1(d => y(d))
+        );
+
+      // Add the outline
+      svg.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "#1FCCB8")
+        .attr("stroke-width", 2.0)
+        .attr("d", d3.line()
+          .x((d, i) => x(i))
+          .y(d => y(d))
+        );
+
+      // Add the min line
+      // Add the stroke line
+      svg.append("line")
+        .attr("x1", x(data.length - 1) + 30)
+        .attr("y1", y(min))
+        .attr("x2", x(minIndex))
+        .attr("y2", y(min))
+        .attr("fill", "none")
+        .attr("stroke", "#9DB8C9")
+        .attr("stroke-width", 2.0)
+        .attr("stroke-dasharray", "6 1");
+
+      // Add the text
+      svg.append("text")
+        .attr("x", x(data.length - 1) + 35)
+        .attr("y", y(min))
+        .attr("text-anchor", "start")
+        .attr("alignment-baseline", "middle")
+        .attr("font-size", "0.8em")
+        .text(Math.round(min) + "m")
+        .style("fill", "#386E90")
+
+      // Add the max line
+      // Add the stroke line
+      svg.append("line")
+        .attr("x1", x(data.length - 1) + 30)
+        .attr("y1", y(max))
+        .attr("x2", x(maxIndex))
+        .attr("y2", y(max))
+        .attr("fill", "none")
+        .attr("stroke", "#9DB8C9")
+        .attr("stroke-width", 2.0)
+        .attr("stroke-dasharray", "6 1");
+
+      // Add the text
+      svg.append("text")
+        .attr("x", x(data.length - 1) + 35)
+        .attr("y", y(max))
+        .attr("text-anchor", "start")
+        .attr("alignment-baseline", "middle")
+        .attr("font-size", "0.8em")
+        .text(Math.round(max) + "m")
+        .style("fill", "#386E90")
+
+      // Add the start and end circles
+      svg.append("circle")
+        .attr("cx", x(0))
+        .attr("cy", y(data[0]))
+        .attr("r", 4)
+        .style("fill", "white")
+        .style("stroke-width", 2.0)
+        .style("stroke", "#1FCCB8");
+
+      svg.append("circle")
+        .attr("cx", x(data.length - 1))
+        .attr("cy", y(data[data.length - 1]))
+        .attr("r", 4)
+        .style("fill", "white")
+        .style("stroke-width", 2.0)
+        .style("stroke", "#1FCCB8");
+
+      // Create the circle that travels along the curve of chart
+      var focus = svg
+        .append('g')
+        .append('circle')
+        .attr("r", 4)
+        .style("fill", "white")
+        .style("stroke-width", 2.0)
+        .style("stroke", "#1FCCB8")
+        .style("opacity", 0);
+
+      // Create the text that travels along the curve of chart
+      var focusText = svg
+        .append('g')
+        .append('text')
+        .style("opacity", 0)
+        .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "middle")
+        .attr("font-size", "0.8em")
+        .style("fill", "#386E90")
+
+      // Create a rect on top of the svg area: this rectangle recovers mouse position
+      svg
+        .append('rect')
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .attr('width', width)
+        .attr('height', height)
+        .on('mouseover', mouseover)
+        .on('mousemove', mousemove)
+        .on('mouseout', mouseout);
+
+      function mouseover() {
+        focus.style("opacity", 1)
+        focusText.style("opacity", 1)
+      }
+
+      function mousemove() {
+        // recover coordinate we need
+        var x0 = x.invert(d3.mouse(this)[0]);
+        var i = Math.floor(x0);
+        var elevation = data[i];
+        focus
+          .attr("cx", x(i))
+          .attr("cy", y(elevation));
+        focusText
+          .text(Math.round(elevation) + "m")
+          .attr("x", x(i))
+          .attr("y", y(elevation) - 10);
+      }
+
+      function mouseout() {
+        focus.style("opacity", 0);
+        focusText.style("opacity", 0);
+      }
+    }
+  </script>
+</body>
+
+</html>
