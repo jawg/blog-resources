@@ -1,0 +1,165 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Allemagne",
+                "rank": 1,
+                "direction": "north-east",
+                "consumption": 32.0
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    10.4234468268018,
+                    51.0834195823074
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Italie",
+                "rank": 2,
+                "direction": "east",                
+                "consumption": 16.0
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    12.6742969534794,
+                    42.6384260750632
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "États-Unis d'Amérique",
+                "rank": 3,
+                "direction": "north-west",       
+                "consumption": 7.2
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -100.445882519589,
+                    39.7837303165396
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Chine",
+                "rank": 4,
+                "direction": "north-east",                
+                "consumption": 7.0
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    104.999926921078,
+                    35.0000739883585
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Japon",
+                "rank": 5,
+                "direction": "south-east",                
+                "consumption": 6.6
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    139.239417836785,
+                    36.5748440798311
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Espagne",
+                "rank": 6,
+                "direction": "south-west",                
+                "consumption": 5.1
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -4.83806497946756,
+                    39.3262344743028
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "France",
+                "rank": 7,
+                "direction": "west",                
+                "consumption": 4.0
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    1.8883334435688,
+                    46.6033539430524
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Belgique",
+                "rank": 8,
+                "direction": "north-west",                
+                "consumption": 2.6
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    4.66671448826853,
+                    50.6402808505594
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Grèce",
+                "rank": 9,
+                "direction": "south-east",                
+                "consumption": 1.5
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    21.9877131293555,
+                    38.9953682342598
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Inde",
+                "rank": 10,
+                "direction": "south-east",                
+                "consumption": 1.2
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    78.667742745432,
+                    22.3511147323947
+                ]
+            }
+        }
+    ]
+}

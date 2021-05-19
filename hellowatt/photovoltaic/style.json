@@ -1,0 +1,380 @@
+{
+    "version": 8,
+    "glyphs": "https://api.jawg.io/glyphs/{fontstack}/{range}.pbf",
+    "sources": {
+        "streets-v2": {
+            "type": "vector",
+            "attribution": "<a href='http://jawg.io' title='Tiles Courtesy of Jawg Maps' target='_blank' class='jawg-attrib'>&copy; <b>Jawg</b>Maps</a> | <a href='https://www.openstreetmap.org/copyright' title='OpenStreetMap is open data licensed under ODbL' target='_blank' class='osm-attrib'>&copy; OSM contributors</a>",
+            "mapbox_logo": false,
+            "maxzoom": 16,
+            "tiles": [
+                "https://tile.jawg.io/streets-v2/{z}/{x}/{y}.pbf?access-token=L2f5vtpF3HPljIQOM19YayNEPw90exuzOmImL6YOob39l6CsT70N6ldhhRnXD9CT"
+            ]
+        },
+        "photovoltaic": {
+            "type": "geojson",
+            "data": "photovoltaic.geojson"
+        }
+    },
+    "layers": [
+        {
+            "id": "background",
+            "type": "background",
+            "paint": {
+                "background-color": "#22a4d7"
+            }
+        },
+        {
+            "id": "water-shadow",
+            "ref": "water-background",
+            "paint": {
+                "fill-color": "#6593a4",
+                "fill-translate": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        1.5
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    7,
+                    [
+                        "literal",
+                        [
+                            0,
+                            0
+                        ]
+                    ],
+                    9,
+                    [
+                        "literal",
+                        [
+                            -0.2,
+                            -0.2
+                        ]
+                    ],
+                    16,
+                    [
+                        "literal",
+                        [
+                            -1.5,
+                            -1.5
+                        ]
+                    ]
+                ],
+                "fill-translate-anchor": "viewport",
+                "fill-opacity": 1
+            }
+        },
+        {
+            "id": "water-background",
+            "source": "streets-v2",
+            "source-layer": "water",
+            "type": "fill",
+            "metadata": {
+                "taxonomy:group": "landuse"
+            },
+            "paint": {
+                "fill-color": "#91D2EB"
+            }
+        },
+        {
+            "id": "admin-2",
+            "source": "streets-v2",
+            "source-layer": "admin",
+            "type": "line",
+            "metadata": {
+                "taxonomy:group": "admin-boundaries"
+            },
+            "filter": [
+                "all",
+                [
+                    "==",
+                    "admin_level",
+                    2
+                ],
+                [
+                    "==",
+                    "maritime",
+                    false
+                ]
+            ],
+            "layout": {
+                "line-join": "round",
+                "line-cap": "round"
+            },
+            "paint": {
+                "line-color": "#f0f7fa",
+                "line-width": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    3,
+                    0.5,
+                    10,
+                    2
+                ]
+            }
+        },
+        {
+            "id": "photovoltaic",
+            "type": "symbol",
+            "source": "photovoltaic",
+            "layout": {
+                "icon-image": [
+                    "concat",
+                    "pointer-",
+                    [
+                        "get",
+                        "direction"
+                    ]
+                ],
+                "icon-size": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "get", "rank"
+                    ],
+                    1,
+                    0.9,
+                    10,
+                    0.5
+                ],
+                "icon-offset": [
+                    "match",
+                    [
+                        "get",
+                        "direction"
+                    ],
+                    "north-east",
+                    [
+                        "literal",
+                        [
+                            -11,
+                            11
+                        ]
+                    ],
+                    "north-west",
+                    [
+                        "literal",
+                        [
+                            11,
+                            11
+                        ]
+                    ],
+                    "south-east",
+                    [
+                        "literal",
+                        [
+                            -11,
+                            -11
+                        ]
+                    ],
+                    "south-west",
+                    [
+                        "literal",
+                        [
+                            11,
+                            -11
+                        ]
+                    ],
+                    "east",
+                    [
+                        "literal",
+                        [
+                            -11,
+                            -1.2
+                        ]
+                    ],
+                    "west",
+                    [
+                        "literal",
+                        [
+                            11,
+                            -1.2
+                        ]
+                    ],
+                    [
+                        "literal",
+                        [
+                            0,
+                            0
+                        ]
+                    ]
+                ],
+                "icon-anchor": [
+                    "match",
+                    [
+                        "get",
+                        "direction"
+                    ],
+                    "north-east",
+                    "bottom-left",
+                    "north-west",
+                    "bottom-right",
+                    "south-east",
+                    "top-left",
+                    "south-west",
+                    "top-right",
+                    "east",
+                    "left",
+                    "west",
+                    "right",
+                    "center"
+                ],
+                "text-anchor": [
+                    "match",
+                    [
+                        "get",
+                        "direction"
+                    ],
+                    "north-east",
+                    "bottom-left",
+                    "north-west",
+                    "bottom-right",
+                    "south-east",
+                    "top-left",
+                    "south-west",
+                    "top-right",
+                    "east",
+                    "left",
+                    "west",
+                    "right",
+                    "center"
+                ],
+                "text-offset": [
+                    "match",
+                    [
+                        "get",
+                        "direction"
+                    ],
+                    "north-east",
+                    [
+                        "literal",
+                        [
+                            1.8,
+                            -1.8
+                        ]
+                    ],
+                    "north-west",
+                    [
+                        "literal",
+                        [
+                            -1.8,
+                            -1.8
+                        ]
+                    ],
+                    "south-east",
+                    [
+                        "literal",
+                        [
+                            1.8,
+                            2.0
+                        ]
+                    ],
+                    "south-west",
+                    [
+                        "literal",
+                        [
+                            -1.3,
+                            2.0
+                        ]
+                    ],
+                    "east",
+                    [
+                        "literal",
+                        [
+                            2.5,
+                            -1.2
+                        ]
+                    ],
+                    "west",
+                    [
+                        "literal",
+                        [
+                            -1.9,
+                            -1.2
+                        ]
+                    ],
+                    [
+                        "literal",
+                        [
+                            0,
+                            0
+                        ]
+                    ]
+                ],
+                "text-size": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "get", "rank"
+                    ],
+                    1,
+                    25,
+                    10,
+                    15
+                ],
+                "text-allow-overlap": true,
+                "icon-allow-overlap": true,
+                "text-justify": "left",
+                "text-font": [
+                    "Roboto Regular",
+                    "Noto Regular"
+                ],
+                "text-field": [
+                    "format",
+                    [
+                        "concat",
+                        [
+                            "get",
+                            "consumption"
+                        ],
+                        "%"
+                    ],
+                    {
+                        "font-scale": 1.0,
+                        "text-color": "#ffffff",
+                        "text-font": [
+                            "literal",
+                            [
+                                "Roboto Bold",
+                                "Noto Bold"
+                            ]
+                        ]
+                    },
+                    "\n",
+                    {},
+                    [
+                        "get",
+                        "name"
+                    ],
+                    {
+                        "font-scale": 0.8,
+                        "text-color": "#ffffff",
+                        "text-font": [
+                            "literal",
+                            [
+                                "Roboto Italic",
+                                "Noto Bold"
+                            ]
+                        ]
+                    }
+                ]
+            },
+            "paint": {
+                "text-halo-color": "#6A98AB",
+                "text-halo-width": 1.5
+            }
+        }
+    ]
+}
