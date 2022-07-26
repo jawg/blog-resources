@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.js"></script>
+    <link
+      href="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+      #map {
+        min-height: 500px;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      let map;
+      (async () => {
+        const accessToken = "L2f5vtpF3HPljIQOM19YayNEPw90exuzOmImL6YOob39l6CsT70N6ldhhRnXD9CT";
+
+        map = new maplibregl.Map({
+          container: "map",
+          style: `https://api.jawg.io/styles/jawg-light.json?access-token=${accessToken}`,
+          zoom: 5,
+          center: [2.01, 46.85],
+          hash: true,
+        }).addControl(new maplibregl.NavigationControl(), "top-right");
+        // This plugin is used for right to left languages
+        maplibregl.setRTLTextPlugin(
+          "https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js"
+        );
+
+        map.once("load", (e) => {
+          map.addSource("sunshine", {
+            type: "geojson",
+            data: "departements.geojson",
+          });
+
+          let color = [
+            "step",
+            ["get", "sunshine"],
+            "#ffc",
+            1600, "#ffeda0",
+            1750, "#fed976",
+            1900, "#feb24c",
+            2050, "#fd8d3c",
+            2200, "#fc4e2a",
+            2350, "#e31a1c",
+            2500, "#bd0026",
+            2650, "#800026"
+          ];
+
+          map.addLayer({
+            id: "sunshine",
+            type: "fill",
+            source: "sunshine",
+            paint: {
+              "fill-opacity": 1.0,
+              "fill-color": color
+            }
+          });
+
+          map.addLayer({
+            id: "sunshine-line",
+            type: "line",
+            source: "sunshine",
+            paint: {
+              "line-color": "#a1a1a1",
+              "line-width": 0.5
+            }
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
