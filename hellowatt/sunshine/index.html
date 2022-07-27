@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
+    <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>    
     <script src="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.js"></script>
     <link
       href="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.css"
@@ -48,10 +49,21 @@
           "https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js"
         );
 
+        let response = await fetch("departements.geojson");
+        let departments = await response.json();
+        let centers = {
+          "type": "FeatureCollection",
+          "features": departments.features.map(d => turf.center(d, { properties: d.properties }))
+        };
+
         map.once("load", (e) => {
           map.addSource("sunshine", {
             type: "geojson",
-            data: "departements.geojson",
+            data: departments,
+          });
+          map.addSource("department-label", {
+            type: "geojson",
+            data: centers,
           });
 
           let color = [
@@ -87,6 +99,37 @@
               "line-width": 0.5
             }
           });
+
+          map.addLayer({
+            id: "department-label",
+            type: "symbol",
+            source: "department-label",
+            layout: {
+              "text-field": ["get", "nom"],
+              "text-size": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                9,
+                14,
+                22
+              ],
+              "text-font": [
+                "Roboto Bold",
+                "Noto Bold"
+              ]
+            },
+            paint: {
+              "text-color": "#ffffff",
+              "text-halo-width": 1,
+              "text-halo-color": "#fd8d3c"
+            }
+          })
         });
       })();
     </script>
