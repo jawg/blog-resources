@@ -20,10 +20,17 @@
         height: 100%;
         width: 100%;
       }
+      #legend {
+        position: absolute;
+        right: 0;
+        top: 150px;
+        height: 300px;
+      }
     </style>
   </head>
   <body>
     <div id="map"></div>
+    <img id="legend" src="legend.svg">
     <script>
       let map;
       (async () => {
