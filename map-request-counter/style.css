@@ -1,0 +1,59 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Buenos Aires, Oxygen, BlinkMacSystemFont, -apple-system, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  letter-spacing: 0.03em;
+}
+
+*,
+::after,
+::after {
+  box-sizing: border-box;
+}
+
+hr {
+  border-width: 1px 0 0 0;
+  border-color: #aaa;
+}
+
+#map {
+  min-height: 500px;
+  height: 100%;
+  width: 100%;
+}
+
+.maplibregl-ctrl-top-left .maplibregl-ctrl {
+  margin: 24px;
+}
+
+.map-request-counter {
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 -1px 0 rgb(0 0 0 / 2%);
+  padding: 1em 2em;
+  border-radius: 0.5em;
+}
+
+.attributions {
+  text-align: center;
+}
+
+.attributions > * {
+  margin: 0.5em 0;
+}
+
+.attributions a {
+  color: #0094ff;
+}
+
+.counters-container span {
+  font-size: 1.5em;
+  font-weight: 700;
+}
+
+.use-raster-tiles-container {
+  display: flex;
+}

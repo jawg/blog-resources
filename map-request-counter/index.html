@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Map Request Counter</title>
+    <meta property="og:title" content="Map Request Counter" />
+    <meta name="author" content="Jawg Maps" />
+    <meta property="og:locale" content="en_US" />
+    <meta
+      name="description"
+      content="Explain the difference between Raster Map Views, Vector Map Views and Map Loads in vanilla JS."
+    />
+    <meta
+      property="og:description"
+      content="Explain the difference between Raster Map Views, Vector Map Views and Map Loads in vanilla JS."
+    />
+    <link rel="canonical" href="https://jawg.github.io/blog-resources/map-request-counter/" />
+    <meta property="og:url" content="https://jawg.github.io/blog-resources/map-request-counter/" />
+    <meta property="og:site_name" content="Map Request Counter" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta property="twitter:title" content="Map Request Counter" />
+    <meta name="twitter:site" content="@Jawgio" />
+    <meta name="twitter:creator" content="@Jawgio" />
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <link href="style.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      // Don't forget to replace YOUR_ACCESS_TOKEN by your real access token !
+      const accessToken = 'YOUR_ACCESS_TOKEN';
+      const VECTOR_STYLE = `https://api.jawg.io/styles/jawg-streets.json?access-token=${accessToken}`;
+      const RASTER_STYLE = {
+        'version': 8,
+        'name': 'Jawg Streets',
+        'sources': {
+          'jawg-streets': {
+            'type': 'raster',
+            'tileSize': 256,
+            'tiles': [`https://tile.jawg.io/jawg-streets/{z}/{x}/{y}.png?access-token=${accessToken}`],
+            'attribution':
+              '<a href="https://www.jawg.io?utm_medium=blog-resources-map-request-counter&utm_source=github" title="Tiles Courtesy of Jawg Maps" target="_blank" class="jawg-attrib" >&copy; <b>Jawg</b>Maps</a> | <a href="https://www.openstreetmap.org/copyright" title="OpenStreetMap is open data licensed under ODbL" target="_blank" class="osm-attrib" >&copy; OSM contributors</a>',
+          },
+        },
+        'layers': [
+          {
+            'id': 'jawg-streets',
+            'source': 'jawg-streets',
+            'type': 'raster',
+          },
+        ],
+      };
+
+      class MapRequestCounterControl {
+        onAdd(map) {
+          this._map = map;
+          this._container = document.createElement('div');
+          this._container.classList.add('map-request-counter', 'maplibregl-ctrl');
+          this._container.appendChild(this.createHeader());
+          this._container.appendChild(document.createElement('hr'));
+          this._container.appendChild(this.createCounters());
+          this._container.appendChild(document.createElement('hr'));
+          this._container.appendChild(this.createRasterSwitch());
+          this._container.appendChild(document.createElement('hr'));
+          this._container.appendChild(this.createAttributions());
+          map.on('data', this.onData());
+          return this._container;
+        }
+        createHeader() {
+          const container = document.createElement('div');
+          container.innerHTML = `<h2>Map Request Counter</h2>`;
+          return container;
+        }
+        createCounters() {
+          const container = document.createElement('div');
+          container.classList.add('counters-container');
+          this.tileCounts = 0;
+          this._counters = {
+            mapViews: document.createElement('span'),
+            tiles: document.createElement('span'),
+            mapLoads: document.createElement('span'),
+          };
+          container.appendChild(this.createCounter('Total Tile Requests: ', this._counters.tiles, 0));
+          container.appendChild(this.createCounter('Total Map Views: ', this._counters.mapViews, 0));
+          container.appendChild(this.createCounter('Total Map Loads: ', this._counters.mapLoads, 1));
+
+          return container;
+        }
+        createCounter(text, counTainer, innerHTML) {
+          const container = document.createElement('div');
+          container.appendChild(document.createTextNode(text));
+          container.appendChild(counTainer);
+          counTainer.innerHTML = innerHTML;
+          return container;
+        }
+        createRasterSwitch() {
+          const container = document.createElement('div');
+          container.classList.add('use-raster-tiles-container');
+          this.rasterSwitch = document.createElement('input');
+          this.rasterSwitch.setAttribute('type', 'checkbox');
+          container.appendChild(document.createTextNode('Use Raster Tiles: '));
+          this.rasterSwitch.onchange = (e) => {
+            this.tileCounts = 0;
+            this._map.setStyle(e.target.checked ? RASTER_STYLE : VECTOR_STYLE);
+          };
+          container.appendChild(this.rasterSwitch);
+          return container;
+        }
+        createAttributions() {
+          const container = document.createElement('div');
+          container.classList.add('attributions');
+          container.innerHTML = `
+          <div>
+            Made with &hearts; by <a target="_blank" href="https://jawg.io/?utm_medium=blog-resources-map-request-counter&utm_source=github"><b>Jawg</b>Maps</a>
+          </div>
+          <div><a target="_blank" href="https://github.com/jawg/blog-resources">GitHub Project</a></div>
+          `;
+          return container;
+        }
+        onData() {
+          return (e) => {
+            if (e.tile) {
+              this._counters.tiles.innerHTML = ++this.tileCounts;
+              this._counters.mapViews.innerHTML = (this.tileCounts / 15).toFixed(2);
+            }
+          };
+        }
+        getDefaultPosition() {
+          return 'top-left';
+        }
+      }
+      const map = new maplibregl.Map({
+        container: 'map',
+        style: VECTOR_STYLE,
+        zoom: 2,
+        center: [2.3488, 48.8534],
+        pitchWithRotate: false,
+        dragRotate: false,
+        attributionControl: true,
+      })
+        .addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
+        .addControl(new MapRequestCounterControl())
+        .addControl(new maplibregl.FullscreenControl());
+
+      map.showTileBoundaries = true;
+
+      // This plugin is used for right to left languages
+      maplibregl.setRTLTextPlugin('https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js');
+    </script>
+  </body>
+</html>
