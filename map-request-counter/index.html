@@ -54,6 +54,13 @@
         ],
       };
 
+      const rasterQueryString = window.location.search
+        .split(/[&?]/)
+        .map((e) => e.split('='))
+        .find((e) => e.length > 0 && e[0] === 'raster');
+      const isRasterDefaultStyle =
+        rasterQueryString.length <= 1 || rasterQueryString[1].toLowerCase() === 'true' || rasterQueryString[1] === '';
+
       class MapRequestCounterControl {
         onAdd(map) {
           this._map = map;
@@ -101,6 +108,7 @@
           container.classList.add('use-raster-tiles-container');
           this.rasterSwitch = document.createElement('input');
           this.rasterSwitch.setAttribute('type', 'checkbox');
+          this.rasterSwitch.checked = isRasterDefaultStyle;
           container.appendChild(document.createTextNode('Use Raster Tiles: '));
           this.rasterSwitch.onchange = (e) => {
             this.tileCounts = 0;
@@ -134,7 +142,7 @@
       }
       const map = new maplibregl.Map({
         container: 'map',
-        style: VECTOR_STYLE,
+        style: isRasterDefaultStyle ? RASTER_STYLE : VECTOR_STYLE,
         zoom: 2,
         center: [2.3488, 48.8534],
         pitchWithRotate: false,
