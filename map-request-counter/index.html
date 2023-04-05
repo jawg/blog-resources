@@ -59,7 +59,8 @@
         .map((e) => e.split('='))
         .find((e) => e.length > 0 && e[0] === 'raster');
       const isRasterDefaultStyle =
-        rasterQueryString.length <= 1 || rasterQueryString[1].toLowerCase() === 'true' || rasterQueryString[1] === '';
+        rasterQueryString &&
+        (rasterQueryString.length <= 1 || rasterQueryString[1].toLowerCase() === 'true' || rasterQueryString[1] === '');
 
       class MapRequestCounterControl {
         onAdd(map) {
