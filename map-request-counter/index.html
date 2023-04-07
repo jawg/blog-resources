@@ -65,6 +65,7 @@
       class MapRequestCounterControl {
         onAdd(map) {
           this._map = map;
+          this._uids = new Set();
           this._container = document.createElement('div');
           this._container.classList.add('map-request-counter', 'maplibregl-ctrl');
           this._container.appendChild(this.createHeader());
@@ -113,6 +114,7 @@
           container.appendChild(document.createTextNode('Use Raster Tiles: '));
           this.rasterSwitch.onchange = (e) => {
             this.tileCounts = 0;
+            this._uids = new Set();
             this._map.setStyle(e.target.checked ? RASTER_STYLE : VECTOR_STYLE);
           };
           container.appendChild(this.rasterSwitch);
@@ -131,7 +133,8 @@
         }
         onData() {
           return (e) => {
-            if (e.tile) {
+            if (e.tile && !this._uids.has(e.tile.uid)) {
+              this._uids.add(e.tile.uid);
               this._counters.tiles.innerHTML = ++this.tileCounts;
               this._counters.mapViews.innerHTML = (this.tileCounts / 15).toFixed(2);
             }
