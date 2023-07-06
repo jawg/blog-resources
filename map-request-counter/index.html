@@ -94,7 +94,9 @@
           };
           container.appendChild(this.createCounter('Total Tile Requests: ', this._counters.tiles, 0));
           container.appendChild(this.createCounter('Total Map Views: ', this._counters.mapViews, 0));
-          container.appendChild(this.createCounter('Total Map Loads: ', this._counters.mapLoads, 1));
+          container.appendChild(
+            this.createCounter('Total Map Loads: ', this._counters.mapLoads, isRasterDefaultStyle ? 'N/A' : 1)
+          );
 
           return container;
         }
@@ -116,6 +118,7 @@
             this.tileCounts = 0;
             this._uids = new Set();
             this._map.setStyle(e.target.checked ? RASTER_STYLE : VECTOR_STYLE);
+            this._counters.mapLoads.innerHTML = e.target.checked ? 'N/A' : 1;
           };
           container.appendChild(this.rasterSwitch);
           return container;
